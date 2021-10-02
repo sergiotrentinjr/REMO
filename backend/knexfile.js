@@ -1,16 +1,24 @@
 // Update with your config settings.
+const parse = require('pg-connection-string').parse;
+const pgconfig = parse(process.env.DATABASE_URL + `?ssl=true`);
+pgconfig.ssl = { rejectUnauthorized: false };
 
 module.exports = {
 
   development: {
     client: 'pg',
-    version: '10.17',
     connection: {
-      host : '127.0.0.1',
-      user : 'postgres',
-      password : 'postgres',
-      database : 'postgres'
-    }
+      user : process.env.USER_KEY,
+      password : process.env.PASSWORD_KEY,
+      database : process.env.DATABASE_KEY
+    },
+    migrations: {
+      directory: './src/database/migrations'
+    },
+    seeds: {
+      directory: './src/database/seeds'
+    },
+    useNullAsDefault: true,
   },
 
   staging: {
@@ -30,19 +38,26 @@ module.exports = {
   },
 
   production: {
-    client: 'postgresql',
-    connection: {
-      database: 'my_db',
-      user:     'username',
-      password: 'password'
-    },
+    client: 'pg',
+    connection: pgconfig,
+    searchPath: ['knex', 'public'],
+    /*connection: {
+      host : process.env.PROD_HOST_KEY,
+      user : process.env.PROD_USER_KEY,
+      password : process.env.PROD_PASSWORD_KEY,
+      database : process.env.PROD_DATABASE_KEY
+    },*/
     pool: {
       min: 2,
-      max: 10
+      max: 50
     },
     migrations: {
-      tableName: 'knex_migrations'
-    }
+      directory: './src/database/migrations'
+    },
+    seeds: {
+      directory: './src/database/seeds'
+    },
+    useNullAsDefault: true,
   }
 
 };
